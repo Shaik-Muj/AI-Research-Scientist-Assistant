@@ -61,3 +61,11 @@ Thumbs.db
 # ChromaDB
 chroma.sqlite3
 chroma/
+
+# Artifacts and explanation files (not for repo)
+.gemini/
+*_explained.md
+*_detailed.md
+*_guide.md
+technical_qa.md
+implementation_summary.md
