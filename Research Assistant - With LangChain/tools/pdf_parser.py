@@ -7,6 +7,7 @@ from typing import Optional
 import PyPDF2
 import google.generativeai as genai
 from config import config
+from tools.arxiv_search import download_paper
 
 
 logging.basicConfig(level=logging.INFO)
@@ -38,18 +39,29 @@ def extract_text_from_pdf(pdf_path: str) -> Optional[str]:
         return None
 
 
-def summarize_paper(pdf_path: str, focus: str = "methodology and key findings") -> str:
+def summarize_paper(pdf_input: str, focus: str = "methodology and key findings") -> str:
     """
     Summarize a research paper using LLM.
     
     Args:
-        pdf_path: Path to PDF file
+        pdf_input: Either an arXiv ID (e.g., "2301.12345") OR a path to a PDF file
         focus: What to focus on in the summary
         
     Returns:
         Summary text
     """
-    logger.info(f"Summarizing paper: {pdf_path}")
+    logger.info(f"Summarizing paper: {pdf_input}")
+    
+    # Check if input is an arXiv ID or a file path
+    if not pdf_input.endswith('.pdf') and not Path(pdf_input).exists():
+        # It's likely an arXiv ID - download it first
+        logger.info(f"Detected arXiv ID: {pdf_input}, downloading...")
+        pdf_path = download_paper(pdf_input)
+        if not pdf_path:
+            return f"Failed to download paper {pdf_input}"
+    else:
+        # It's already a file path
+        pdf_path = pdf_input
     
     # Extract text
     text = extract_text_from_pdf(pdf_path)
@@ -57,14 +69,19 @@ def summarize_paper(pdf_path: str, focus: str = "methodology and key findings") 
     if not text:
         return "Failed to extract text from PDF"
     
-    # Truncate if too long (Gemini has token limits)
+    # Truncate if too long (LLM has token limits)
     max_chars = 30000
     if len(text) > max_chars:
         text = text[:max_chars] + "\n\n[... truncated ...]"
     
-    # Use Gemini to summarize
-    genai.configure(api_key=config.llm.api_key)
-    model = genai.GenerativeModel(config.llm.model)
+    # Use Groq to summarize
+    from langchain_groq import ChatGroq
+    
+    llm = ChatGroq(
+        model=config.llm.model,
+        api_key=config.llm.api_key,
+        temperature=config.llm.temperature
+    )
     
     prompt = f"""Summarize this research paper, focusing on {focus}.
 
@@ -81,8 +98,8 @@ Provide a structured summary including:
 Keep the summary concise (2-3 paragraphs)."""
     
     try:
-        response = model.generate_content(prompt)
-        summary = response.text
+        response = llm.invoke(prompt)
+        summary = response.content
         logger.info("Paper summarized successfully")
         return summary
         

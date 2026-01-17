@@ -7,9 +7,9 @@ from datetime import datetime
 from pathlib import Path
 from typing import Any, Dict, List, Optional
 
-from langchain.memory import ConversationBufferMemory, ChatMessageHistory
+from langchain.memory import ConversationBufferMemory
+from langchain_community.chat_message_histories import ChatMessageHistory
 from langchain_community.vectorstores import Chroma
-from langchain_google_genai import GoogleGenerativeAIEmbeddings
 from langchain.schema import Document
 
 
@@ -23,8 +23,9 @@ class SharedMemory:
         self.persist_dir = Path(persist_directory)
         self.persist_dir.mkdir(parents=True, exist_ok=True)
         
-        # Initialize embeddings
-        self.embeddings = GoogleGenerativeAIEmbeddings(model="models/embedding-001")
+        # Initialize embeddings (using local HuggingFace model to avoid API quota)
+        from langchain_community.embeddings import HuggingFaceEmbeddings
+        self.embeddings = HuggingFaceEmbeddings(model_name="all-MiniLM-L6-v2")
         
         # Create vector stores for different types of data
         self.papers_store = Chroma(

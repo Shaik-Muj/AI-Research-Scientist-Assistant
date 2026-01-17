@@ -8,11 +8,16 @@ from pydantic import BaseModel, Field
 
 
 class LLMConfig(BaseModel):
-    """Configuration for the LLM (Google Gemini via LangChain)."""
-    model: str = "gemini-2.0-flash"
+    """Configuration for the LLM (Groq via LangChain)."""
+    model: str = "moonshotai/kimi-k2-instruct"  # 60 RPM!
+    available_models: list = [
+        "moonshotai/kimi-k2-instruct",  # 60 RPM, 1K RPD - Primary
+        "qwen/qwen3-32b",                # 60 RPM, 1K RPD - Secondary
+        "llama-3.1-8b-instant",          # 30 RPM, 14.4K RPD - Backup
+    ]
     temperature: float = 0.7
     max_tokens: int = 8192
-    api_key: Optional[str] = Field(default_factory=lambda: os.getenv("GOOGLE_API_KEY"))
+    api_key: Optional[str] = Field(default_factory=lambda: os.getenv("GROQ_API_KEY"))
     
     def validate_api_key(self) -> bool:
         """Check if API key is available."""

@@ -1,9 +1,12 @@
-# Python
+# Ignore Python cache and virtual environments
 __pycache__/
 *.py[cod]
 *$py.class
 *.so
 .Python
+env/
+venv/
+ENV/
 build/
 develop-eggs/
 dist/
@@ -20,52 +23,35 @@ wheels/
 .installed.cfg
 *.egg
 
-# Virtual environments
-venv/
-ENV/
-env/
-.venv
-
-# IDE
+# Ignore IDE files
 .vscode/
 .idea/
 *.swp
 *.swo
 *~
 
-# Jupyter Notebook
-.ipynb_checkpoints
-
-# Data and outputs
-datasets/
-outputs/
-cache/
-checkpoints/
-results/
-*.pt
-*.pth
-*.ckpt
-
-# Logs
-*.log
-logs/
-
-# OS
+# Ignore OS files
 .DS_Store
 Thumbs.db
 
-# Environment variables
+# Ignore data and outputs
+data/papers/*.pdf
+outputs/
+cache/
+*.db
+*.sqlite
+
+# Ignore logs
+*.log
+
+# Ignore environment variables
 .env
-.env.local
 
-# ChromaDB
-chroma.sqlite3
+# Ignore ChromaDB
 chroma/
+chroma_db/
 
-# Artifacts and explanation files (not for repo)
-.gemini/
-*_explained.md
-*_detailed.md
-*_guide.md
-technical_qa.md
-implementation_summary.md
+# Keep directory structure
+!data/papers/.gitkeep
+!outputs/.gitkeep
+!cache/.gitkeep
