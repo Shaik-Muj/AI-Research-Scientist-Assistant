@@ -55,3 +55,7 @@ chroma_db/
 !data/papers/.gitkeep
 !outputs/.gitkeep
 !cache/.gitkeep
+
+# Ignore db file
+check_db.py
+view_chromadb.py

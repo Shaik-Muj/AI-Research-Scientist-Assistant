@@ -79,7 +79,22 @@ class ResearchOrchestrator:
         # Execute query
         result = agent.invoke({"input": self.query})
         
-        # Cache result
+        # Save the result to ChromaDB for future reference
+        try:
+            self.memory.store_insight(
+                insight_text=f"Query: {self.query}\n\nAnswer: {result.get('output', '')}",
+                source="research_query",
+                metadata={
+                    "query": self.query,
+                    "query_hash": cache_key,
+                    "timestamp": datetime.now().isoformat()
+                }
+            )
+            logger.info("✓ Result saved to knowledge base (ChromaDB)")
+        except Exception as e:
+            logger.warning(f"Failed to save to knowledge base: {str(e)}")
+        
+        # Cache result in working memory
         self.memory.set(f"research_{cache_key}", result)
         logger.info("✓ Result cached for future use")
         

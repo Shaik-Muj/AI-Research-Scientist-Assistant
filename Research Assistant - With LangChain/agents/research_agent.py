@@ -6,6 +6,7 @@ from langchain.agents import create_react_agent
 from langchain_groq import ChatGroq
 from langchain.tools import Tool
 from langchain.prompts import PromptTemplate
+from datetime import datetime
 
 from memory import SharedMemory
 from config import config
@@ -55,6 +56,16 @@ def create_research_agent(memory: SharedMemory, model: str = None) -> AgentExecu
             name="summarize_paper",
             func=summarize_paper,
             description="Summarize a research paper. Input should be either an arXiv ID or path to a PDF file."
+        ),
+        # Memory - NEW!
+        Tool(
+            name="save_paper_summary",
+            func=lambda summary_text: memory.store_insight(
+                insight_id=f"summary_{datetime.now().timestamp()}",
+                content=summary_text,
+                source="paper_summary"
+            ) or "Summary saved to knowledge base",
+            description="Save a paper summary to the knowledge base for future reference. Input should be the summary text."
         ),
         # Comparison
         Tool(
